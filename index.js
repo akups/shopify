@@ -1,7 +1,7 @@
 require("dotenv").config();
 const moment = require("moment");
 const express = require("express");
-const port = 4000;
+const port = 3030;
 const app = express();
 
 // Use the shpify api node package as a wrapper around the API
