@@ -3,6 +3,7 @@ const moment = require("moment");
 const express = require("express");
 const port = 4000;
 const app = express();
+const slackNotification = require("./slackNotification");
 
 // Use the shpify api node package as a wrapper around the API
 const Shopify = require("shopify-api-node");
@@ -16,25 +17,35 @@ const shopify = new Shopify({
 
 // Configurate the route / shopify to return the orders
 app.get("/shopify", async (req, res) => {
-  const orders = await shopify.order.list({ limit: 10 });
-
   // Orders placed the day before:
   const yesterdayStart = moment().subtract(1, "days").startOf("date");
   const yesterdayEnd = moment().subtract(1, "days").endOf("date");
 
-  const ordersDayBefore = orders.filter((order) => {
-    const oderDate = moment(order.created_at);
+  const ordersYesterday = await shopify.order.count({
+    created_at_max: yesterdayEnd.format(),
+    created_at_min: yesterdayStart.format(),
+  });
 
-    if (yesterdayStart < oderDate && yesterdayEnd > oderDate) {
-      //first date is in future, or it is today
-      return true;
-    }
-    return false;
-  }).length;
+  const ordersNotYetShipped = await shopify.order.count({
+    fulfillment_status: "unshipped",
+  });
 
-  console.log("orders", orders.length);
-  console.log(orders[0]);
-  res.json({ ordersDayBefore });
+  // fullfillment Events that happened yesterday
+
+  const results = {
+    ordersDayBefore: ordersYesterday,
+    ordersNotYetShipped: ordersNotYetShipped,
+  };
+
+  slackNotification(`
+     Orders Created Yestrday: ${ordersYesterday}
+     Orders not yet shipped: ${ordersNotYetShipped}
+   
+     `);
+
+  // get order --> which orders have status fullfilment_completed
+
+  res.json(results);
 });
 
 // Draft orders have no fulfillment status: "The Draft Order resource does not expose reserve inventory information."

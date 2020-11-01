@@ -14,6 +14,8 @@ const shopify = new Shopify({
   password: process.env.SHOPIFY_API_PASSWORD,
 });
 
+shopify.on("callLimits", (limits) => console.log(limits));
+
 // Configurate the route / shopify to return the orders
 app.get("/shopify", async (req, res) => {
   const orders = await shopify.draftOrder.list({ limit: 5 });
