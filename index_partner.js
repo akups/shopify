@@ -32,13 +32,20 @@ app.get("/shopify", async (req, res) => {
 
   // fullfillment Events that happened yesterday
 
+  // const ordersShippedYesterday = ordersYesterday.filter((order) => {
+  //   if (fulfillment_status === "fulfilled") {
+  //     return order;
+  //   }
+  // });
+
   const results = {
     ordersDayBefore: ordersYesterday,
     ordersNotYetShipped: ordersNotYetShipped,
+    //ordersShippedYesterday: ordersShippedYesterday.length,
   };
 
   slackNotification(`
-     Orders Created Yestrday: ${ordersYesterday}
+     Orders Created Yesterday: ${ordersYesterday}
      Orders not yet shipped: ${ordersNotYetShipped}
    
      `);
