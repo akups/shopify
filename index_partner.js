@@ -9,14 +9,14 @@ const Shopify = require("shopify-api-node");
 
 // Instantiate and provide credentials
 const shopify = new Shopify({
-  shopName: "akuas-ecke.myshopify.com",
-  apiKey: process.env.SHOPIFY_API_KEY,
-  password: process.env.SHOPIFY_API_PASSWORD,
+  shopName: "akua-dev-store.myshopify.com",
+  apiKey: process.env.SHOPIFY_API_KEY_PARTNER,
+  password: process.env.SHOPIFY_API_PASSWORD_PARTNER,
 });
 
 // Configurate the route / shopify to return the orders
 app.get("/shopify", async (req, res) => {
-  const orders = await shopify.draftOrder.list({ limit: 5 });
+  const orders = await shopify.order.list({ limit: 10 });
 
   // Orders placed the day before:
   const yesterdayStart = moment().subtract(1, "days").startOf("date");
@@ -32,7 +32,8 @@ app.get("/shopify", async (req, res) => {
     return false;
   }).length;
 
-  console.log("orders", orders);
+  console.log("orders", orders.length);
+  console.log(orders[0]);
   res.json({ ordersDayBefore });
 });
 
